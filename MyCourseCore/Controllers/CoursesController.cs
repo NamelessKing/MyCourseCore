@@ -7,12 +7,12 @@ namespace MyCourseCore.Controllers
 
         public IActionResult Index()
         {
-            return Content("index");
+            return View();
         }
 
         public IActionResult Detail(string id)
         {
-            return Content($"detail id : {id}");
+            return View();
         }
     }
 }

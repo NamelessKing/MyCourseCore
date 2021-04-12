@@ -17,7 +17,7 @@ namespace MyCourseCore.Controllers
         public IActionResult Index()
         {
             ViewData["Title"] = "Catalogo dei corsi";
-            List <CourseViewModel> courses = CourseService.GetCourses();
+           List <CourseViewModel> courses = CourseService.GetCourses();
             return View(courses);
         }
 

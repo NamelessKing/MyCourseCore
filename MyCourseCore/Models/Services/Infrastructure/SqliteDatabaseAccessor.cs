@@ -18,19 +18,22 @@ namespace MyCourseCore.Models.Services.Infrastructure
                 {
                     using (var reader = command.ExecuteReader())
                     {
-                        var dataSet = new DataSet();
-                        dataSet.EnforceConstraints = false;//TODO : da togliere o aggiornare pacchetto
-                        var dataTable = new DataTable();
-                        dataSet.Tables.Add(dataTable);
+                        var dataSet = new DataSet
+                        {
+                            EnforceConstraints = false//TODO : da togliere o aggiornare pacchetto
+                        };
 
-                        dataTable.Load(reader);
+                        do
+                        {
+                            var dataTable = new DataTable();
+                            dataSet.Tables.Add(dataTable);
+                            dataTable.Load(reader);
+                        } while (!reader.IsClosed);
 
                         return dataSet;
                     }
                 }
             }
-
-            throw new NotImplementedException();
         }
     }
 }

@@ -10,7 +10,7 @@ namespace MyCourseCore.Models.Services.Application
 {
     public class CourseService : ICourseService
     {
-        public List<CourseViewModel> GetCourses()
+        public Task<List<CourseViewModel>> GetCoursesAsync()
         {
             var courseList = new List<CourseViewModel>();
             var rand = new Random();
@@ -29,11 +29,11 @@ namespace MyCourseCore.Models.Services.Application
                 };
                 courseList.Add(course);
             }
-            return courseList;
+            return Task.FromResult(courseList);
         }
 
 
-        public CourseDetailViewModel GetCourse(int id)
+        public Task<CourseDetailViewModel> GetCourseAsync(int id)
         {
             var rand = new Random();
             var price = Convert.ToDecimal(rand.NextDouble() * 10 + 10);
@@ -60,7 +60,7 @@ namespace MyCourseCore.Models.Services.Application
                 course.Lessons.Add(lesson);
             }
 
-            return course;
+            return Task.FromResult(course);
         }
     }
 }

@@ -9,13 +9,25 @@ namespace MyCourseCore.Models.Services.Infrastructure
 {
     public class SqliteDatabaseAccessor : IDatabaseAccessor
     {
-        public DataSet Query(string query)
+        public async Task<DataSet> QueryAsync(FormattableString formattableQuery)
         {
+            //Creiamo dei SqliteParameter a partire dalla FormattableString
+            var queryArguments = formattableQuery.GetArguments();
+            var sqliteParameters = new List<SqliteParameter>();
+            for (var i = 0; i < queryArguments.Length; i++)
+            {
+                var parameter = new SqliteParameter(i.ToString(), queryArguments[i]);
+                sqliteParameters.Add(parameter);
+                queryArguments[i] = "@" + i;
+            }
+            string query = formattableQuery.ToString();
+
             using (var connection = new SqliteConnection("Data Source=Data/MyCourse.db"))
             { 
-                connection.Open();
+                await connection.OpenAsync();
                 using (var command = new SqliteCommand(query, connection))
                 {
+                    command.Parameters.AddRange(sqliteParameters);
                     using (var reader = command.ExecuteReader())
                     {
                         var dataSet = new DataSet

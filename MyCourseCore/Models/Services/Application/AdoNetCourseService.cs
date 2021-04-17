@@ -18,12 +18,13 @@ namespace MyCourseCore.Models.Services.Application
         }
 
 
-        public CourseDetailViewModel GetCourse(int id)
+        public async Task<CourseDetailViewModel> GetCourseAsync(int id)
         {
-            string query = "SELECT Id, Title, Description, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, " +
-                            "CurrentPrice_Amount, CurrentPrice_Currency FROM Courses WHERE Id=" + id +";"+
-                            "SELECT Id, Title, Description, Duration FROM Lessons WHERE CourseId=" + id;
-            DataSet dataSet = DatabaseAccessor.Query(query);
+            FormattableString query = $@"SELECT Id, Title, Description, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, 
+                            CurrentPrice_Amount, CurrentPrice_Currency FROM Courses WHERE Id={id};
+                            SELECT Id, Title, Description, Duration FROM Lessons WHERE CourseId={id}";
+
+            DataSet dataSet = await DatabaseAccessor.QueryAsync(query);
 
             //Course
             var courseTable = dataSet.Tables[0];
@@ -45,13 +46,12 @@ namespace MyCourseCore.Models.Services.Application
             return courseDetailViewModel;
         }
 
-        public List<CourseViewModel> GetCourses()
+        public async Task<List<CourseViewModel>> GetCoursesAsync()
         {
-            string query = "SELECT Id, Title, ImagePath, Author, Rating, " +
-                "FullPrice_Amount, FullPrice_Currency, " +
-                "CurrentPrice_Amount, CurrentPrice_Currency FROM Courses";
+            FormattableString query = $@"SELECT Id, Title, ImagePath, Author, Rating,
+                FullPrice_Amount, FullPrice_Currency,CurrentPrice_Amount, CurrentPrice_Currency FROM Courses";
 
-            DataSet dataSet =  DatabaseAccessor.Query(query);
+            DataSet dataSet = await DatabaseAccessor.QueryAsync(query);
             var dataTable = dataSet.Tables[0];
 
             var courseList = new List<CourseViewModel>();

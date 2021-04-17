@@ -28,7 +28,7 @@ namespace MyCourseCore.Models.Services.Infrastructure
                 using (var command = new SqliteCommand(query, connection))
                 {
                     command.Parameters.AddRange(sqliteParameters);
-                    using (var reader = command.ExecuteReader())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
                         var dataSet = new DataSet
                         {

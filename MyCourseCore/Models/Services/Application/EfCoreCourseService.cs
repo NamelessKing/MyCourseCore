@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MyCourseCore.Models.Entities;
+using MyCourseCore.Models.Services.Infrastructure;
 using MyCourseCore.Models.ViewModels;
 using System;
 using System.Collections.Generic;

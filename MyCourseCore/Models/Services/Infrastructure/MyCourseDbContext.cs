@@ -7,9 +7,6 @@ namespace MyCourseCore.Models.Services.Infrastructure
 {
     public partial class MyCourseDbContext : DbContext
     {
-        public MyCourseDbContext()
-        {
-        }
 
         public MyCourseDbContext(DbContextOptions<MyCourseDbContext> options)
             : base(options)
@@ -18,14 +15,6 @@ namespace MyCourseCore.Models.Services.Infrastructure
 
         public virtual DbSet<Course> Courses { get; set; }
         public virtual DbSet<Lesson> Lessons { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-                optionsBuilder.UseSqlite("Data Source=Data/MyCourse.db");
-            }
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

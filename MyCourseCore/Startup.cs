@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MyCourseCore.Models.Entities;
+using MyCourseCore.Models.Options;
 using MyCourseCore.Models.Services.Application;
 using MyCourseCore.Models.Services.Infrastructure;
 
@@ -32,13 +34,21 @@ namespace MyCourseCore
 
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            //services.AddTransient<ICourseService,AdoNetCourseService>();
-            services.AddTransient<ICourseService,EfCoreCourseService>();
+
+            services.AddAutoMapper();
+
             services.AddTransient<IDatabaseAccessor, SqliteDatabaseAccessor>();
 
+            //services.AddTransient<ICourseService,AdoNetCourseService>();
+            services.AddTransient<ICourseService, EfCoreCourseService>();
+
             services.AddDbContextPool<MyCourseDbContext>(optionsBuilder => {
-                optionsBuilder.UseSqlite("Data Source=Data/MyCourse.db");
+                optionsBuilder.UseSqlite(Configuration.GetConnectionString("Default"));
             });
+
+            //Options
+            services.Configure<ConnectionStringsOptions>(Configuration.GetSection("ConnectionStrings"));
+            services.Configure<CoursesOptions>(Configuration.GetSection("Courses"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,10 +57,11 @@ namespace MyCourseCore
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                //app.UseExceptionHandler("/Error");
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
 

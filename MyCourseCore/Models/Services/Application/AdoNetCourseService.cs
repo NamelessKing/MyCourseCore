@@ -1,4 +1,9 @@
-﻿using MyCourseCore.Models.Services.Infrastructure;
+﻿using AutoMapper;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using MyCourseCore.Models.Exceptions;
+using MyCourseCore.Models.Options;
+using MyCourseCore.Models.Services.Infrastructure;
 using MyCourseCore.Models.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -10,16 +15,25 @@ namespace MyCourseCore.Models.Services.Application
 {
     public class AdoNetCourseService : ICourseService
     {
-        public IDatabaseAccessor DatabaseAccessor { get; }
+        private ILogger<AdoNetCourseService> Logger { get; }
+        private IDatabaseAccessor DatabaseAccessor { get; }
+        private IOptionsMonitor<CoursesOptions> CoursesOptions { get; }
+        private IMapper Mapper { get; }
 
-        public AdoNetCourseService(IDatabaseAccessor databaseAccessor)
+        public AdoNetCourseService(ILogger<AdoNetCourseService> logger, IDatabaseAccessor databaseAccessor, IOptionsMonitor<CoursesOptions> coursesOptions, IMapper mapper)
         {
+            Logger = logger;
             DatabaseAccessor = databaseAccessor;
+            CoursesOptions = coursesOptions;
+            Mapper = mapper;
         }
 
 
         public async Task<CourseDetailViewModel> GetCourseAsync(int id)
         {
+
+            Logger.LogInformation("Course {id} requested", id);
+
             FormattableString query = $@"SELECT Id, Title, Description, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency, 
                             CurrentPrice_Amount, CurrentPrice_Currency FROM Courses WHERE Id={id};
                             SELECT Id, Title, Description, Duration FROM Lessons WHERE CourseId={id}";
@@ -30,19 +44,17 @@ namespace MyCourseCore.Models.Services.Application
             var courseTable = dataSet.Tables[0];
             if (courseTable.Rows.Count != 1)
             {
-                throw new InvalidOperationException($"Did not return exactly 1 row for Course {id}");
+                Logger.LogWarning("Course {id} not found", id);
+                throw new CourseNotFoundException(id);
             }
             var courseRow = courseTable.Rows[0];
-            var courseDetailViewModel = CourseDetailViewModel.FromDataRow(courseRow);
+            var courseDetailViewModel = Mapper.Map<CourseDetailViewModel>(courseRow);
 
             //Course lessons
             var lessonDataTable = dataSet.Tables[1];
 
-            foreach (DataRow lessonRow in lessonDataTable.Rows)
-            {
-                LessonViewModel lessonViewModel = LessonViewModel.FromDataRow(lessonRow);
-                courseDetailViewModel.Lessons.Add(lessonViewModel);
-            }
+            courseDetailViewModel.Lessons = Mapper.Map<List<LessonViewModel>>(lessonDataTable.Rows);
+
             return courseDetailViewModel;
         }
 
@@ -54,12 +66,8 @@ namespace MyCourseCore.Models.Services.Application
             DataSet dataSet = await DatabaseAccessor.QueryAsync(query);
             var dataTable = dataSet.Tables[0];
 
-            var courseList = new List<CourseViewModel>();
-            foreach (DataRow row in dataTable.Rows)
-            {
-                CourseViewModel course = CourseViewModel.FromDataRow(row);
-                courseList.Add(course);
-            }
+            var courseList = Mapper.Map<List<CourseViewModel>>(dataTable.Rows);
+
             return courseList;
         }
     }

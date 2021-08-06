@@ -1,4 +1,8 @@
 ﻿using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using MyCourseCore.Models.Options;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,8 +13,19 @@ namespace MyCourseCore.Models.Services.Infrastructure
 {
     public class SqliteDatabaseAccessor : IDatabaseAccessor
     {
+        public SqliteDatabaseAccessor(ILogger<SqliteDatabaseAccessor> logger, IOptionsMonitor<ConnectionStringsOptions> connectionStringOption)
+        {
+            Logger = logger;
+            ConnectionStringOption = connectionStringOption;
+        }
+
+        private ILogger<SqliteDatabaseAccessor> Logger { get; }
+        public IOptionsMonitor<ConnectionStringsOptions> ConnectionStringOption { get; }
+
         public async Task<DataSet> QueryAsync(FormattableString formattableQuery)
         {
+            Logger.LogInformation(formattableQuery.Format, formattableQuery.GetArguments());
+
             //Creiamo dei SqliteParameter a partire dalla FormattableString
             var queryArguments = formattableQuery.GetArguments();
             var sqliteParameters = new List<SqliteParameter>();
@@ -22,7 +37,8 @@ namespace MyCourseCore.Models.Services.Infrastructure
             }
             string query = formattableQuery.ToString();
 
-            using (var connection = new SqliteConnection("Data Source=Data/MyCourse.db"))
+            string connectionString = ConnectionStringOption.CurrentValue.Default;
+            using (var connection = new SqliteConnection(connectionString))
             { 
                 await connection.OpenAsync();
                 using (var command = new SqliteCommand(query, connection))

@@ -24,7 +24,7 @@ namespace MyCourseCore.Models.Services.Application
 
         private MyCourseDbContext DbContext { get; }
         public ILogger<EfCoreCourseService> Logger { get; }
-        public IOptionsMonitor<CoursesOptions> CoursesOptions { get; }
+        private IOptionsMonitor<CoursesOptions> CoursesOptions { get; }
 
         public async Task<CourseDetailViewModel> GetCourseAsync(int id)
         {

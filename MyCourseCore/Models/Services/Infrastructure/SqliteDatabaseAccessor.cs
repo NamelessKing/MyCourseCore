@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MyCourseCore.Models.Options;
+using Polly;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -39,8 +40,12 @@ namespace MyCourseCore.Models.Services.Infrastructure
 
             string connectionString = ConnectionStringOption.CurrentValue.Default;
             using (var connection = new SqliteConnection(connectionString))
-            { 
-                await connection.OpenAsync();
+            {
+
+                var policy = Policy.Handle<Exception>().WaitAndRetryAsync(2, retry => TimeSpan.FromMilliseconds(1000));
+
+                await policy.ExecuteAsync(() =>  connection.OpenAsync());
+
                 using (var command = new SqliteCommand(query, connection))
                 {
                     command.Parameters.AddRange(sqliteParameters);

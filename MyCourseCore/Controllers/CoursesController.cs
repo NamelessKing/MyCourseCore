@@ -8,9 +8,9 @@ namespace MyCourseCore.Controllers
 {
     public class CoursesController : Controller
     {
-        private  ICourseService CourseService { get; }
+        private ICachedCourseService CourseService { get; }
 
-        public CoursesController(ICourseService courseService)
+        public CoursesController(ICachedCourseService courseService)
         {
             CourseService = courseService;
         }
@@ -29,4 +29,6 @@ namespace MyCourseCore.Controllers
             return View(viewModel);
         }
     }
+
+
 }

@@ -41,6 +41,7 @@ namespace MyCourseCore
 
             //services.AddTransient<ICourseService,AdoNetCourseService>();
             services.AddTransient<ICourseService, EfCoreCourseService>();
+            services.AddTransient<ICachedCourseService, MemoryCachedCourseService>();
 
             services.AddDbContextPool<MyCourseDbContext>(optionsBuilder => {
                 optionsBuilder.UseSqlite(Configuration.GetConnectionString("Default"));

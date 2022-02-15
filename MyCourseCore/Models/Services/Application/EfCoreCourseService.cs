@@ -47,9 +47,17 @@ namespace MyCourseCore.Models.Services.Application
             return viewModel;
         }
 
-        public async Task<List<CourseViewModel>> GetCoursesAsync()
+        public async Task<List<CourseViewModel>> GetCoursesAsync(string search, int page)
         {
-            IQueryable<CourseViewModel> queryLinq = DbContext.Courses.AsNoTracking()
+            search = search ?? "";
+            page = Math.Max(1, page);
+            int limit = CoursesOptions.CurrentValue.PerPage;
+            int offset = (page - 1) * limit;
+            IQueryable<CourseViewModel> queryLinq = DbContext.Courses
+                .Where(course => course.Title.Contains(search))
+                .Skip(offset)
+                .Take(limit)
+                .AsNoTracking()
                 .Select(course => CourseViewModel.FromEntity(course)); //Usando metodi statici come FromEntity, la query potrebbe essere inefficiente. Mantenere il mapping nella lambda oppure usare un extension method personalizzato
 
             List<CourseViewModel> courses = await queryLinq.ToListAsync(); //La query al database viene inviata qui, quando manifestiamo l'intenzione di voler leggere i risultati

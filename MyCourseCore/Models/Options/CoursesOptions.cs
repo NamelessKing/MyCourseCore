@@ -9,6 +9,7 @@ namespace MyCourseCore.Models.Options
     {
         public int PerPage { get; set; }
         public CoursesOrderOptions Order { get; set; }
+        public int CourseCacheTimeInSec { get; set; }
     }
 
     public partial class CoursesOrderOptions

@@ -10,7 +10,7 @@ namespace MyCourseCore.Models.Services.Application
 {
     public class CourseService : ICourseService
     {
-        public Task<List<CourseViewModel>> GetCoursesAsync()
+        public Task<List<CourseViewModel>> GetCoursesAsync(string search, int page)
         {
             var courseList = new List<CourseViewModel>();
             var rand = new Random();

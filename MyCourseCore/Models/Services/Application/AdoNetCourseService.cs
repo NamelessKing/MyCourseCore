@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using MyCourseCore.Models.Exceptions;
 using MyCourseCore.Models.Options;
 using MyCourseCore.Models.Services.Infrastructure;
+using MyCourseCore.Models.ValueTypes;
 using MyCourseCore.Models.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -58,15 +59,32 @@ namespace MyCourseCore.Models.Services.Application
             return courseDetailViewModel;
         }
 
-        public async Task<List<CourseViewModel>> GetCoursesAsync(string search, int page)
+        public async Task<List<CourseViewModel>> GetCoursesAsync(string search, int page, string orderby, bool ascending)
         {
             page = Math.Max(1, page);
             int limit = CoursesOptions.CurrentValue.PerPage;
             int offset = (page - 1)* limit;
+
+            var orderOptions = CoursesOptions.CurrentValue.Order;
+            if (!orderOptions.Allow.Contains(orderby))
+            {
+                orderby = orderOptions.By;
+                ascending = orderOptions.Ascending;
+            }
+            if (orderby == "CurrentPrice")
+            {
+                orderby = "CurrentPrice_Amount";
+            }
+            string direction = ascending ? "ASC" : "DESC";
+
+
             FormattableString query = 
                 $@"SELECT Id, Title, ImagePath, Author, Rating, FullPrice_Amount, FullPrice_Currency,CurrentPrice_Amount, CurrentPrice_Currency 
                 FROM Courses
-                WHERE Title LIKE %{search}% LIMIT {limit} OFFSET {offset}";
+                WHERE Title LIKE %{search}%
+                ORDER BY {(Sql) orderby} {(Sql) direction}
+                LIMIT {limit} 
+                OFFSET {offset}";
 
             DataSet dataSet = await DatabaseAccessor.QueryAsync(query);
             var dataTable = dataSet.Tables[0];

@@ -1,5 +1,4 @@
-﻿
-@model List<CourseViewModel>
+﻿@model List<CourseViewModel>
 
 <div class="row">
     <div class="col-md-8">
@@ -16,6 +15,22 @@
         </form>
     </div>
 </div>
+
+
+<div class="row">
+    <div class="col-md-1"></div>
+    <div class="col-md-5">
+        <a asp-route-orderby="Title" asp-route-ascending="true">Title</a>
+    </div>
+    <div class="col-md-2">
+        <a asp-route-orderby="Rating" asp-route-ascending="true">Valutazione </a>
+    </div>
+    <div class="col-md-2">
+        <a asp-route-orderby="CurrentPrice" asp-route-ascending="true">Prezzo</a>
+    </div>
+    <div class="col-md-2"></div>
+</div>
+
 
 @foreach (CourseViewModel course in Model)
 {
@@ -49,7 +64,9 @@
             @course.CurrentPrice
             @if (!course.CurrentPrice.Equals(course.FullPrice))
             {
-                <br><s>@course.FullPrice</s>
+                <br>
+
+                <s>@course.FullPrice</s>
             }
         </div>
         <div class="col-md-2 d-flex align-items-center">
@@ -65,9 +82,9 @@
         </li>
         <li class="page-item">
             <a class="page-link" asp-route-page="2">2</a>
-        </li> 
+        </li>
         <li class="page-item">
             <a class="page-link" asp-route-page="3">3</a>
-        </li> 
+        </li>
     </ul>
 </nav>

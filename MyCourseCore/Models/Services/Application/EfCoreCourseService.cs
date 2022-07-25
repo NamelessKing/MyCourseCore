@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MyCourseCore.Models.Entities;
 using MyCourseCore.Models.Exceptions;
+using MyCourseCore.Models.InputModels;
 using MyCourseCore.Models.Options;
 using MyCourseCore.Models.Services.Infrastructure;
 using MyCourseCore.Models.ViewModels;
@@ -48,15 +49,17 @@ namespace MyCourseCore.Models.Services.Application
             return viewModel;
         }
 
-        public async Task<List<CourseViewModel>> GetCoursesAsync(string search, int page, string orderby, bool ascending)
+        public async Task<List<CourseViewModel>> GetCoursesAsync(CourseListInputModel courseListInputModel)
         {
-            search = search ?? "";
-            page = Math.Max(1, page);
+            var search = courseListInputModel.Search ?? "";
+            var page = Math.Max(1, courseListInputModel.Page);
             int limit = CoursesOptions.CurrentValue.PerPage;
             int offset = (page - 1) * limit;
+            var orderby = "";
+            bool ascending = false;
 
             var orderOptions = CoursesOptions.CurrentValue.Order;
-            if (!orderOptions.Allow.Contains(orderby))
+            if (!orderOptions.Allow.Contains(courseListInputModel.OrderBy))
             {
                 orderby = orderOptions.By;
                 ascending = orderOptions.Ascending;
